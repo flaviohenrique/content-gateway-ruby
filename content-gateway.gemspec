@@ -16,12 +16,12 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
-  gem.add_dependency "activesupport",                           ">= 3"
-  gem.add_dependency "rest-client",                             "~> 1.0"
-  gem.add_dependency "json",                                    "~> 1.0"
+  gem.add_dependency "activesupport", ">= 3"
+  gem.add_dependency "rest-client",   "~> 2.0"
+  gem.add_dependency "json",          "~> 2.0"
 
-  gem.add_development_dependency "rspec",                       ">= 2.3.0"
-  gem.add_development_dependency "simplecov",                   ">= 0.7.1"
+  gem.add_development_dependency "rspec",     "~> 3.7.0"
+  gem.add_development_dependency "simplecov", ">= 0.14.1"
   gem.add_development_dependency "byebug"
   gem.add_development_dependency "rake"
 end
