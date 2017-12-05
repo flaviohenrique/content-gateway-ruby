@@ -33,8 +33,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'rest-client',   '~> 2.0'
   gem.add_dependency 'json',          '~> 2.0'
 
-  gem.add_development_dependency 'rspec',     '~> 3.7.0'
-  gem.add_development_dependency 'simplecov', '>= 0.14.1'
-  gem.add_development_dependency 'byebug'
-  gem.add_development_dependency 'rake'
+  gem.add_development_dependency 'rspec',     '~> 3.7',  '>= 3.7.0'
+  gem.add_development_dependency 'simplecov', '~> 0.14', '>= 0.14.1'
+  gem.add_development_dependency 'byebug',    '~> 9.1',  '>= 9.1.0'
+  gem.add_development_dependency 'rake',      '~> 12.3', '>= 12.3.0'
 end
