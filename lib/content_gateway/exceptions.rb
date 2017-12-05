@@ -65,7 +65,7 @@ module ContentGateway
 
   class ServerError < BaseError
     def initialize(resource_url, wrapped_exception = nil, status_code = nil)
-      super(resource_url, wrapped_exception, status_code, "SERVER ERROR")
+      super(resource_url, wrapped_exception, status_code, 'SERVER ERROR')
     end
   end
 
@@ -76,7 +76,7 @@ module ContentGateway
   end
 
   class OpenSSLFailure < BaseError
-    def initialize(resource_url, wrapped_exception = nil, info=nil)
+    def initialize(resource_url, wrapped_exception = nil, info = nil)
       super(resource_url, wrapped_exception, 406, info)
     end
   end

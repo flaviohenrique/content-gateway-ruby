@@ -1,6 +1,6 @@
 ENV['RACK_ENV'] = 'test'
 
-$:.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'coveralls'
 Coveralls.wear!

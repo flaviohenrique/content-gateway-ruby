@@ -11,7 +11,7 @@ module ContentGateway
       aux_params = remove_aux_parameters! params
       headers = aux_params.delete :headers
 
-      url = self.generate_url(resource_path, params)
+      url = generate_url(resource_path, params)
 
       measure("GET - #{url}") do
         data = { method: :get, url: url }.tap do |h|
@@ -30,7 +30,7 @@ module ContentGateway
       timeout = aux_params.delete :timeout
       ssl_certificate = aux_params.delete :ssl_certificate
 
-      url = self.generate_url(resource_path, params)
+      url = generate_url(resource_path, params)
 
       measure("POST - #{url}") do
         data = { method: :post, url: url, payload: payload }.tap do |h|
@@ -51,7 +51,7 @@ module ContentGateway
       timeout = aux_params.delete :timeout
       ssl_certificate = aux_params.delete :ssl_certificate
 
-      url = self.generate_url(resource_path, params)
+      url = generate_url(resource_path, params)
 
       measure("PUT - #{url}") do
         data = { method: :put, url: url, payload: payload }.tap do |h|
@@ -72,7 +72,7 @@ module ContentGateway
       timeout = aux_params.delete :timeout
       ssl_certificate = aux_params.delete :ssl_certificate
 
-      url = self.generate_url(resource_path, params)
+      url = generate_url(resource_path, params)
 
       measure("DELETE - #{url}") do
         data = { method: :delete, url: url }.tap do |h|
@@ -113,16 +113,16 @@ module ContentGateway
 
     private
 
-    def remove_aux_parameters! params
-      aux_params = params.select do |k, v|
-        [:timeout, :expires_in, :stale_expires_in, :skip_cache, :headers, :payload, :ssl_certificate].include? k
+    def remove_aux_parameters!(params)
+      aux_params = params.select do |k, _v|
+        %i[timeout expires_in stale_expires_in skip_cache headers payload ssl_certificate].include? k
       end
 
       aux_params.tap do |p|
         p[:headers] = p[:headers] || @default_params[:headers]
       end
 
-      params.delete_if do |k,v|
+      params.delete_if do |k, _v|
         aux_params.keys.include? k
       end
 
@@ -140,7 +140,6 @@ module ContentGateway
 
       begin
         do_request(params)
-
       rescue ContentGateway::BaseError => e
         message = "#{prefix(e.status_code)} :: #{color_message(e.resource_url)}"
         message << " - #{e.info}" if e.info
@@ -152,16 +151,22 @@ module ContentGateway
 
     def do_request(params = {})
       if @cache.use?
-        @cache.fetch(@request, timeout: params[:timeout], expires_in: params[:expires_in], stale_expires_in: params[:stale_expires_in])
+        @cache.fetch(@request,  timeout: params[:timeout],
+                                expires_in: params[:expires_in],
+                                stale_expires_in: params[:stale_expires_in])
       else
         @request.execute
       end
     end
 
     def json_request(verb, resource_path, params = {})
-      JSON.parse(self.send(verb, resource_path, params))
+      JSON.parse(send(verb, resource_path, params))
     rescue JSON::ParserError => e
-      url = generate_url(resource_path, params) rescue resource_path
+      url = begin
+              generate_url(resource_path, params)
+            rescue StandardError
+              resource_path
+            end
       raise ContentGateway::ParserError.new(url, e)
     end
 
@@ -169,7 +174,7 @@ module ContentGateway
       result = nil
       time_elapsed = Benchmark.measure { result = yield }
       sufix = "finished in #{humanize_elapsed_time(time_elapsed.real)}. "
-      cache_log = (@cache.status || "HIT").to_s.ljust(4, " ")
+      cache_log = (@cache.status || 'HIT').to_s.ljust(4, ' ')
       log_message = "#{prefix(code(result))} :: #{cache_log} #{color_message(message)} #{sufix}"
 
       logger.info log_message
@@ -177,11 +182,11 @@ module ContentGateway
     end
 
     def code(result)
-      result.respond_to?(:code) ? result.code : ""
+      result.respond_to?(:code) ? result.code : ''
     end
 
     def humanize_elapsed_time(time_elapsed)
-      time_elapsed >= 1 ? "%.3f secs" % time_elapsed : "#{(time_elapsed * 1000).to_i} ms"
+      time_elapsed >= 1 ? format('%.3f secs', time_elapsed) : "#{(time_elapsed * 1000).to_i} ms"
     end
 
     def prefix(code = nil)
@@ -193,8 +198,8 @@ module ContentGateway
     end
 
     def color_code(code)
-      color = code == 200 ? "32" : "31"
-      code_message = code.to_s.ljust(3, " ")
+      color = code == 200 ? '32' : '31'
+      code_message = code.to_s.ljust(3, ' ')
       "\033[#{color}m#{code_message}\033[0m"
     end
 
@@ -204,8 +209,8 @@ module ContentGateway
           Rails.logger
         else
           log = ::Logger.new STDOUT
-          log.formatter = lambda {|severity, datetime, progname, msg|
-            "#{datetime.strftime("%Y-%m-%d %H:%M:%S")} #{severity.upcase} #{msg}\n"
+          log.formatter = lambda { |severity, datetime, _progname, msg|
+            "#{datetime.strftime('%Y-%m-%d %H:%M:%S')} #{severity.upcase} #{msg}\n"
           }
 
           log
@@ -215,7 +220,7 @@ module ContentGateway
 
     class DefaultUrlGenerator
       def generate(resource_path, params = {})
-        args = "?#{params.map {|k, v| "#{k}=#{v}"}.join("&")}" if params.any?
+        args = "?#{params.map { |k, v| "#{k}=#{v}" }.join('&')}" if params.any?
         "#{resource_path}#{args}"
       end
     end

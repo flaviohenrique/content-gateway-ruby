@@ -10,7 +10,7 @@ module ContentGateway
     end
 
     def use?
-      !@skip_cache && [:get, :head].include?(@method)
+      !@skip_cache && %i[get head].include?(@method)
     end
 
     def fetch(request, params = {})
@@ -22,7 +22,7 @@ module ContentGateway
       begin
         Timeout.timeout(timeout) do
           @config.cache.fetch(@url, expires_in: expires_in) do
-            @status = "MISS"
+            @status = 'MISS'
             response = request.execute
             response = String.new(response) if response
 
@@ -30,14 +30,12 @@ module ContentGateway
             response
           end
         end
-
       rescue Timeout::Error => e
         begin
           serve_stale
         rescue ContentGateway::StaleCacheNotAvailableError
           raise ContentGateway::TimeoutError.new(@url, e, timeout)
         end
-
       rescue ContentGateway::ServerError => e
         begin
           raise e unless stale_on_error
@@ -50,8 +48,8 @@ module ContentGateway
 
     def serve_stale
       @config.cache.read(stale_key).tap do |cached|
-        raise ContentGateway::StaleCacheNotAvailableError.new unless cached
-        @status = "STALE"
+        raise ContentGateway::StaleCacheNotAvailableError unless cached
+        @status = 'STALE'
       end
     end
 
@@ -60,7 +58,8 @@ module ContentGateway
     end
 
     private
-    def config_stale_on_error params, config
+
+    def config_stale_on_error(params, config)
       return params[:stale_on_error] unless params[:stale_on_error].nil?
       return config.stale_on_error unless config.try(:stale_on_error).nil?
       true
