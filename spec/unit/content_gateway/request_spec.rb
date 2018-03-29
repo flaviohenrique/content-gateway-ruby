@@ -71,6 +71,16 @@ describe ContentGateway::Request do
         end
       end
 
+      context 'with RestClient::PreconditionFailed exception' do
+        before do
+          expect(client).to receive(:execute).and_raise(RestClient::PreconditionFailed)
+        end
+
+        it 'should raise ContentGateway::PreconditionFailed' do
+          expect { subject.execute }.to raise_error ContentGateway::PreconditionFailed
+        end
+      end
+
       context 'with a 5xx error' do
         before do
           expect(client).to receive(:execute).and_raise(RestClient::Exception.new(nil, 502))

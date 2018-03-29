@@ -30,6 +30,12 @@ module ContentGateway
     end
   end
 
+  class PreconditionFailed < BaseError
+    def initialize(resource_url, wrapped_exception = nil)
+      super(resource_url, wrapped_exception, 412)
+    end
+  end
+
   class ResourceNotFound < BaseError
     def initialize(resource_url, wrapped_exception = nil)
       super(resource_url, wrapped_exception, 404)
