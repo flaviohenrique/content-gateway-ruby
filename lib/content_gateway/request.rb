@@ -24,12 +24,14 @@ module ContentGateway
       raise ContentGateway::ConflictError.new url, e5
     rescue RestClient::PreconditionFailed => e6
       raise ContentGateway::PreconditionFailed.new url, e6
-    rescue RestClient::Exception => e7
-      status_code = e7.http_code
-      raise e7 if status_code && status_code < 500
-      raise ContentGateway::ServerError.new url, e7, status_code
-    rescue StandardError => e8
-      raise ContentGateway::ConnectionFailure.new url, e8
+    rescue RestClient::BadRequest => e7
+      raise ContentGateway::BadRequest.new url, e7
+    rescue RestClient::Exception => e8
+      status_code = e8.http_code
+      raise e8 if status_code && status_code < 500
+      raise ContentGateway::ServerError.new url, e8, status_code
+    rescue StandardError => e9
+      raise ContentGateway::ConnectionFailure.new url, e9
     end
 
     private

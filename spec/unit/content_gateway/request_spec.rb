@@ -81,6 +81,16 @@ describe ContentGateway::Request do
         end
       end
 
+      context 'with RestClient::BadRequest exception' do
+        before do
+          expect(client).to receive(:execute).and_raise(RestClient::BadRequest)
+        end
+
+        it 'should raise ContentGateway::BadRequest' do
+          expect { subject.execute }.to raise_error ContentGateway::BadRequest
+        end
+      end
+
       context 'with a 5xx error' do
         before do
           expect(client).to receive(:execute).and_raise(RestClient::Exception.new(nil, 502))

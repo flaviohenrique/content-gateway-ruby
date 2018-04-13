@@ -18,6 +18,12 @@ module ContentGateway
     end
   end
 
+  class BadRequest < BaseError
+    def initialize(resource_url, wrapped_exception = nil)
+      super(resource_url, wrapped_exception, 400)
+    end
+  end
+
   class UnauthorizedError < BaseError
     def initialize(resource_url, wrapped_exception = nil)
       super(resource_url, wrapped_exception, 401)
