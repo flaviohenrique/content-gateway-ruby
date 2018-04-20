@@ -66,6 +66,28 @@ module ContentGateway
       end
     end
 
+    def patch(resource_path, params = {})
+      aux_params = remove_aux_parameters! params
+      headers = aux_params.delete :headers
+      payload = aux_params.delete :payload
+      timeout = aux_params.delete :timeout
+      ssl_certificate = aux_params.delete :ssl_certificate
+
+      url = generate_url(resource_path, params)
+
+      measure("PATCH - #{url}") do
+        data = { method: :patch, url: url, payload: payload }.tap do |h|
+          h[:headers] = headers if headers.present?
+        end
+
+        request_params = { timeout: timeout }.merge(params).tap do |h|
+          h[:ssl_certificate] = ssl_certificate unless ssl_certificate.nil?
+        end
+
+        send_request(data, request_params)
+      end
+    end
+
     def delete(resource_path, params = {})
       aux_params = remove_aux_parameters! params
       headers = aux_params.delete :headers
@@ -97,6 +119,10 @@ module ContentGateway
 
     def put_json(resource_path, params = {})
       json_request(:put, resource_path, params)
+    end
+
+    def patch_json(resource_path, params = {})
+      json_request(:patch, resource_path, params)
     end
 
     def delete_json(resource_path, params = {})

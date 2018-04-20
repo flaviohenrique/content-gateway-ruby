@@ -309,6 +309,13 @@ describe ContentGateway::Gateway do
     end
   end
 
+  describe '#patch_json' do
+    it 'should convert the patch result to JSON' do
+      expect(gateway).to receive(:patch).with(resource_path, params).and_return({ 'a' => 1 }.to_json)
+      expect(gateway.patch_json(resource_path, params)).to eql('a' => 1)
+    end
+  end
+
   describe '#post' do
     let :resource_url do
       url_generator.generate(resource_path, {})
@@ -411,6 +418,41 @@ describe ContentGateway::Gateway do
     it 'should raise ConnectionFailure exception on 500 error' do
       stub_request_with_error({ method: :put, url: resource_url, proxy: config.proxy, payload: payload, headers: headers }, SocketError.new)
       expect { gateway.put resource_path, payload: payload }.to raise_error ContentGateway::ConnectionFailure
+    end
+  end
+
+  describe '#patch' do
+    let :resource_url do
+      gateway.generate_url(resource_path)
+    end
+
+    let :payload do
+      { param: 'value' }
+    end
+
+    it 'should do request with http put' do
+      stub_request(method: :patch, url: resource_url, proxy: config.proxy, payload: payload, headers: headers)
+      gateway.patch resource_path, payload: payload
+    end
+
+    it 'should raise NotFound exception on 404 error' do
+      stub_request_with_error({ method: :patch, url: resource_url, proxy: config.proxy, payload: payload, headers: headers }, RestClient::ResourceNotFound.new)
+      expect { gateway.patch resource_path, payload: payload }.to raise_error ContentGateway::ResourceNotFound
+    end
+
+    it 'should raise UnprocessableEntity exception on 422 error' do
+      stub_request_with_error({ method: :patch, url: resource_url, proxy: config.proxy, payload: payload, headers: headers }, RestClient::UnprocessableEntity)
+      expect { gateway.patch resource_path, payload: payload }.to raise_error ContentGateway::ValidationError
+    end
+
+    it 'should raise Forbidden exception on 403 error' do
+      stub_request_with_error({ method: :patch, url: resource_url, proxy: config.proxy, payload: payload, headers: headers }, RestClient::Forbidden.new)
+      expect { gateway.patch resource_path, payload: payload }.to raise_error(ContentGateway::Forbidden)
+    end
+
+    it 'should raise ConnectionFailure exception on 500 error' do
+      stub_request_with_error({ method: :patch, url: resource_url, proxy: config.proxy, payload: payload, headers: headers }, SocketError.new)
+      expect { gateway.patch resource_path, payload: payload }.to raise_error ContentGateway::ConnectionFailure
     end
   end
 

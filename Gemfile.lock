@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    content_gateway (0.6.3)
+    content_gateway (0.7.0)
       activesupport (>= 3)
       json (~> 2.0)
       rest-client (~> 2.0)
@@ -9,7 +9,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (5.1.6)
+    activesupport (5.2.0)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
